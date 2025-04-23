@@ -44,13 +44,14 @@ function renderQuestions() {
   questions.forEach((qObj, qi) => {
     const wrapper = document.createElement("div");
 
-    // ——— QUESTION TEXT (no numeric prefix!) ———
+    // QUESTION TEXT (no numeric prefix to satisfy Cypress)
     wrapper.insertAdjacentHTML("beforeend", `<p>${qObj.question}</p>`);
 
-    // ——— RADIOS ———
+    // RADIO BUTTONS
     qObj.choices.forEach((choice, ci) => {
-      const id      = `q${qi}_c${ci}`;
-      const checked = progress[qi] === choice ? "checked" : "";
+      const id         = `q${qi}_c${ci}`;
+      const isChecked  = progress[qi] === choice;              // Boolean
+      const checkedAtt = isChecked ? 'checked="true"' : "";    // Cypress wants this
 
       wrapper.insertAdjacentHTML(
         "beforeend",
@@ -61,7 +62,7 @@ function renderQuestions() {
             name="q${qi}"
             value="${choice}"
             id="${id}"
-            ${checked}
+            ${checkedAtt}
           />
           ${choice}
         </label><br/>
