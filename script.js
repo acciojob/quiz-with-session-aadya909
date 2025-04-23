@@ -44,5 +44,68 @@ function renderQuestions() {
   questions.forEach((qObj, qi) => {
     const wrapper = document.createElement("div");
 
-    // —
+    // ——— QUESTION TEXT (no numeric prefix!) ———
+    wrapper.insertAdjacentHTML("beforeend", `<p>${qObj.question}</p>`);
+
+    // ——— RADIOS ———
+    qObj.choices.forEach((choice, ci) => {
+      const id      = `q${qi}_c${ci}`;
+      const checked = progress[qi] === choice ? "checked" : "";
+
+      wrapper.insertAdjacentHTML(
+        "beforeend",
+        `
+        <label>
+          <input
+            type="radio"
+            name="q${qi}"
+            value="${choice}"
+            id="${id}"
+            ${checked}
+          />
+          ${choice}
+        </label><br/>
+        `
+      );
+    });
+
+    questionsElement.appendChild(wrapper);
+  });
+}
+
+/* ---------- 4.  SAVE EACH CLICK TO SESSION ---------- */
+function handleChoiceClick(e) {
+  if (!e.target.matches("input[type='radio']")) return;
+
+  const progress = JSON.parse(sessionStorage.getItem("progress") || "[]");
+  const qIndex   = Number(e.target.name.slice(1)); // "q3" → 3
+  progress[qIndex] = e.target.value;
+  sessionStorage.setItem("progress", JSON.stringify(progress));
+}
+
+/* ---------- 5.  SUBMIT QUIZ ---------- */
+function handleSubmit() {
+  const progress = JSON.parse(sessionStorage.getItem("progress") || "[]");
+  let score = 0;
+
+  questions.forEach(({ answer }, qi) => {
+    if (progress[qi] === answer) score++;
+  });
+
+  scoreDiv.textContent = `Your score is ${score} out of 5.`;
+  localStorage.setItem("score", score);
+}
+
+/* ---------- 6.  INITIALISATION ---------- */
+renderQuestions();
+
+const lastScore = localStorage.getItem("score");
+if (lastScore !== null) {
+  scoreDiv.textContent = `Your last score was ${lastScore} out of 5.`;
+}
+
+/* ---------- 7.  EVENT LISTENERS ---------- */
+questionsElement.addEventListener("click", handleChoiceClick);
+submitBtn.addEventListener("click", handleSubmit);
+
 
